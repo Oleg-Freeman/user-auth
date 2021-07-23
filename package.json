@@ -9,7 +9,8 @@
   "scripts": {
     "lint": "./node_modules/.bin/eslint .",
     "dev": "nodemon ./build/main.js",
-    "start": "node ./build/main.js"
+    "start": "node ./build/main.js",
+    "build": "./node_modules/.bin/tsc"
   },
   "author": "Oleg Voitiuk",
   "license": "ISC",

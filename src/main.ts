@@ -3,6 +3,7 @@ import json from 'koa-json';
 import bodyParser from 'koa-bodyparser';
 import cors from '@koa/cors';
 import { config } from './config';
+import { sequelize } from './db';
 
 const app = new Koa();
 
@@ -21,6 +22,11 @@ app.use(async (ctx, next) => {
     }
 });
 
-app.listen(config.port, () => {
-    console.log(`Server is running on port ${config.port}`);
-});
+sequelize
+    .sync()
+    .then(() =>
+        app.listen(config.port, () => {
+            console.log(`Server is running on port ${config.port}`);
+        })
+    )
+    .catch((err) => console.log(err));
