@@ -7,7 +7,6 @@
   "description": "test task",
   "main": "./build/main.js",
   "scripts": {
-    "lint": "./node_modules/.bin/eslint .",
     "dev": "nodemon ./build/main.js",
     "start": "node ./build/main.js",
     "build": "./node_modules/.bin/tsc"
@@ -22,6 +21,7 @@
     "koa": "^2.13.1",
     "koa-bodyparser": "^4.3.0",
     "koa-json": "^2.0.2",
+    "koa-router": "^10.0.0",
     "sequelize": "^6.6.5",
     "sqlite3": "^5.0.2",
     "uuid": "^8.3.2"
