@@ -2,7 +2,7 @@ import Koa from 'koa';
 import json from 'koa-json';
 import bodyParser from 'koa-bodyparser';
 import cors from '@koa/cors';
-import {config} from './config';
+import { config } from './config';
 import { sequelize } from './config/db';
 import userRouter from './modules/user/user.controller';
 

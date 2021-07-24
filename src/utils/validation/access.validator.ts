@@ -3,7 +3,7 @@ import jwt from 'jsonwebtoken';
 import { config } from '../../config';
 import { Decoded } from '../../types';
 
-export const hasAccess = async (ctx: Context, next: Next) => {
+export const hasAccess = async (ctx: Context, next: Next): Promise<Next | undefined> => {
     try {
         const auth = <string>ctx.header.token;
 

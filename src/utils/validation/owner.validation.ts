@@ -1,6 +1,6 @@
 import { Context, Next } from 'koa';
 
-export const isOwner = async (ctx: Context, next: Next) => {
+export const isOwner = async (ctx: Context, next: Next): Promise<Next | undefined> => {
     try {
         const tokenID = <string>ctx.state.id;
         const id = <string>ctx.params.id;

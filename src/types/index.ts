@@ -23,4 +23,4 @@ export interface Decoded extends JwtPayload {
     id: string;
 }
 
-export interface UpdateUser extends Partial<RegisterRequest> {}
+export type UpdateUser = Partial<RegisterRequest>;

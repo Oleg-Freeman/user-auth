@@ -3,14 +3,15 @@ import jwt from 'jsonwebtoken';
 import { v4 as uuid } from 'uuid';
 import { config } from '../../config';
 import { UserModel } from './user.model';
-import { UpdateUser, UserInterface } from '../../types';
+import { UpdateUser, UserAttributes, UserInterface } from '../../types';
 
 export class UserService {
     private model: UserModel;
     constructor() {
         this.model = new UserModel();
     }
-    async registerUser(login: string, password: string, firstName: string, lastName: string) {
+
+    async registerUser(login: string, password: string, firstName: string, lastName: string): Promise<UserAttributes> {
         const id = uuid();
         const hashPassword = await this.encrypt(password);
 
@@ -31,13 +32,16 @@ export class UserService {
         };
     }
 
-    async loginUser(password: string, savedPassword: string, id: string) {
+    async loginUser(password: string, savedPassword: string, id: string): Promise<string | undefined> {
         const passwordMatch = bcrypt.compareSync(password, savedPassword);
 
         if (passwordMatch) {
-            return 'Bearer ' + jwt.sign({ id }, config.jwtSecret, {
-                expiresIn: config.jwtExpiration,
-            });
+            return (
+                'Bearer ' +
+                jwt.sign({ id }, config.jwtSecret, {
+                    expiresIn: config.jwtExpiration,
+                })
+            );
         }
     }
 
@@ -45,15 +49,15 @@ export class UserService {
         return await this.model.queryUserLogin(login);
     }
 
-    async getById(id: string) {
+    async getById(id: string): Promise<UserInterface | null> {
         return await this.model.queryByID(id);
     }
 
-    async getAll(page: number, quantity: number) {
+    async getAll(page: number, quantity: number): Promise<UserInterface[] | undefined> {
         return await this.model.getAll(page, quantity);
     }
 
-    async findAndUpdate(id: string, properties: UpdateUser) {
+    async findAndUpdate(id: string, properties: UpdateUser): Promise<void> {
         const newProps = properties;
         if (newProps.password) {
             newProps.password = await this.encrypt(newProps.password);
@@ -62,10 +66,10 @@ export class UserService {
         for (const [key, value] of Object.entries(newProps)) {
             updateProps.push(`${key} = "${value}"`);
         }
-        return await this.model.findAndUpdate(id, updateProps);
+        await this.model.findAndUpdate(id, updateProps);
     }
 
-    async encrypt(src: string) {
+    async encrypt(src: string): Promise<string> {
         const salt = await bcrypt.genSalt(+config.bcryptSalt);
         return await bcrypt.hash(src, salt);
     }

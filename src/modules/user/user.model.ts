@@ -7,7 +7,8 @@ export class UserModel {
     constructor() {
         this.entity = Users;
     }
-    async insertUser({ id, login, password, lastName, firstName }: UserAttributes) {
+
+    async insertUser({ id, login, password, lastName, firstName }: UserAttributes): Promise<void> {
         await this.entity.create({
             id,
             login,
@@ -23,11 +24,11 @@ export class UserModel {
         });
     }
 
-    async queryByID(id: string) {
+    async queryByID(id: string): Promise<UserInterface | null> {
         return await this.entity.findByPk(id);
     }
 
-    async getAll(page: number, quantity: number) {
+    async getAll(page: number, quantity: number): Promise<UserInterface[] | undefined> {
         return await this.entity.sequelize?.query(
             `SELECT * FROM users ORDER BY createdAt DESC LIMIT ${quantity} OFFSET ${(page - 1) * quantity}`,
             {
@@ -36,7 +37,7 @@ export class UserModel {
         );
     }
 
-    async findAndUpdate(id: string, updateConditions: string[]) {
-        return await this.entity.sequelize?.query(`UPDATE users SET ${updateConditions.join(', ')} WHERE id = "${id}"`);
+    async findAndUpdate(id: string, updateConditions: string[]): Promise<void> {
+        await this.entity.sequelize?.query(`UPDATE users SET ${updateConditions.join(', ')} WHERE id = "${id}"`);
     }
 }
