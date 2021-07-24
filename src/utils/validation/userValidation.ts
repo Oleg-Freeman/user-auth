@@ -1,4 +1,4 @@
-import Joi, { ValidationError } from 'joi';
+import Joi from 'joi';
 
 const loginSchema = Joi.object().keys({
     login: Joi.string().pattern(new RegExp('^[a-zA-Z0-9-_.@]{3,20}$')).required(),
@@ -10,9 +10,9 @@ const registerSchema = loginSchema.keys({
     lastName: Joi.string().min(2).max(20).required(),
 });
 
-export const loginValidation = (login: string, password: string): { err: ValidationError; value: unknown } | {} => {
-    const { error: err, value } = loginSchema.validate({ login, password });
-    return err ? { err, value } : {};
+export const loginValidation = (body: string | Record<string, unknown>) => {
+    const { error: err } = loginSchema.validate(body);
+    return err;
 };
 
 export const registerValidation = (body: string | Record<string, unknown>) => {

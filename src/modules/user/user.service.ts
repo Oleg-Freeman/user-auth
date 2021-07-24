@@ -2,9 +2,11 @@
 // calculations
 // transform to meet db requirements
 import bcrypt from 'bcrypt';
-import {v4 as uuid} from 'uuid';
-import {encription} from '../../config';
-import {UserModel} from './user.model';
+import jwt from 'jsonwebtoken';
+import { v4 as uuid } from 'uuid';
+import { encription, token } from '../../config';
+import { UserModel } from './user.model';
+import { UserInterface } from '../../types/userInterface';
 
 export class UserService {
     private model: UserModel;
@@ -33,7 +35,17 @@ export class UserService {
         };
     }
 
-    async ifRegistered(login: string) {
+    async loginUser(password: string, savedPassword: string, id: string) {
+        const passwordMatch = bcrypt.compareSync(password, savedPassword);
+
+        if (passwordMatch) {
+            return jwt.sign({ id }, token.jwtSecret || 'secret', {
+                expiresIn: token.jwtExpiration,
+            });
+        }
+    }
+
+    async ifUserExist(login: string): Promise<UserInterface[] | undefined> {
         return await this.model.queryUserLogin(login);
     }
 }

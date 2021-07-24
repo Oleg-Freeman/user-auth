@@ -4,8 +4,8 @@
 // error
 import Router from 'koa-router';
 import { UserService } from './user.service';
-import { RegisterRequest } from '../../types/userInterface';
-import { registerValidation } from '../../utils/validation/userValidation';
+import { RegisterRequest, LoginRequest } from '../../types/userInterface';
+import { registerValidation, loginValidation } from '../../utils/validation/userValidation';
 
 const router = new Router();
 
@@ -24,8 +24,8 @@ router.post('/api/user/register', async (ctx) => {
 
         const { firstName, lastName, login, password } = <RegisterRequest>(<unknown>ctx.request.body);
 
-        const userService = new UserService();
-        const userExist = await userService.ifRegistered(login);
+        const service = new UserService();
+        const userExist = await service.ifUserExist(login);
 
         if (userExist && userExist.length) {
             console.log(`User already registered`);
@@ -36,7 +36,7 @@ router.post('/api/user/register', async (ctx) => {
             return;
         }
 
-        const user = await userService.registerUser(login, password, firstName, lastName);
+        const user = await service.registerUser(login, password, firstName, lastName);
 
         ctx.status = 201;
         ctx.body = {
@@ -54,9 +54,58 @@ router.post('/api/user/register', async (ctx) => {
 });
 
 // login
-// router.post('/api/user/login', async (ctx) => {
-//     const {login, password} = <loginRequest><unknown>ctx.request.body;
-// })
+router.post('/api/user/login', async (ctx) => {
+    try {
+        const validationErrors = loginValidation(ctx.request.body);
+        if (validationErrors) {
+            console.log(`Login request validation error:`, validationErrors.details);
+            ctx.status = 400;
+            ctx.body = {
+                message: `Login request validation error: ${validationErrors.details[0].message}`,
+            };
+            return;
+        }
+        const { login, password } = <LoginRequest>(<unknown>ctx.request.body);
+
+        const service = new UserService();
+        const userExist = await service.ifUserExist(login);
+
+        if (!userExist || !userExist.length) {
+            console.log(`Wrong credentials, try again`);
+            ctx.status = 401;
+            ctx.body = {
+                message: `Wrong credentials, try again`,
+            };
+            return;
+        }
+
+        const { id, password: savedPassword } = userExist[0];
+
+        const newToken = await service.loginUser(password, savedPassword, id);
+
+        if (newToken) {
+            ctx.status = 200;
+            ctx.body = {
+                token: newToken,
+                id,
+                message: 'Logged in successfully',
+            };
+        } else {
+            console.log('Wrong credentials, try again');
+            ctx.status = 401;
+            ctx.body = {
+                message: `Wrong credentials, try again`,
+            };
+        }
+    } catch (err) {
+        console.log('Login failed', err);
+        ctx.status = err.statusCode || err.status || 400;
+        ctx.body = {
+            message: 'Login failed',
+            err: err,
+        };
+    }
+});
 
 // get user by ID
 // router.get('/api/user/:id', async (ctx) => {
