@@ -1,6 +1,6 @@
 // data access layer
 // methods for data access
-import { UserAttributes, UserInterface } from '../../types/userInterface';
+import { UserAttributes, UserInterface } from '../../types';
 import { Users } from './user.entity';
 import { QueryTypes } from 'sequelize';
 
@@ -27,5 +27,11 @@ export class UserModel {
 
     async queryByID(id: string) {
         return await this.entity.findByPk(id);
+    }
+
+    async getAll(page: number, quantity: number) {
+        return await this.entity.sequelize?.query(`SELECT * FROM users ORDER BY createdAt DESC LIMIT ${quantity} OFFSET ${(page - 1) * quantity}`, {
+            type: QueryTypes.SELECT,
+        });
     }
 }

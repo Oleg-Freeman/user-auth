@@ -1,6 +1,6 @@
 import Sequelize from 'sequelize';
 import { sequelize } from '../../db';
-import { UserInterface } from '../../types/userInterface';
+import { UserInterface } from '../../types';
 
 export const Users = sequelize.define<UserInterface>('Users', {
     id: {

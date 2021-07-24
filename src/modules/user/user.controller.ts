@@ -4,8 +4,9 @@
 // error
 import Router from 'koa-router';
 import { UserService } from './user.service';
-import { RegisterRequest, LoginRequest } from '../../types/userInterface';
-import { registerValidation, loginValidation } from '../../utils/validation/userValidation';
+import { RegisterRequest, LoginRequest } from '../../types';
+import { registerValidation, loginValidation } from '../../utils/validation/body.validator';
+import { access } from '../../utils/validation/access.validator';
 
 const router = new Router();
 
@@ -81,12 +82,12 @@ router.post('/api/user/login', async (ctx) => {
 
         const { id, password: savedPassword } = userExist[0];
 
-        const newToken = await service.loginUser(password, savedPassword, id);
+        const token = await service.loginUser(password, savedPassword, id);
 
-        if (newToken) {
+        if (token) {
             ctx.status = 200;
             ctx.body = {
-                token: newToken,
+                token,
                 id,
                 message: 'Logged in successfully',
             };
@@ -131,8 +132,32 @@ router.get('/api/user/:id', async (ctx) => {
 // })
 
 // get all users
-// router.get('/api/user', async (ctx) => {
-//
-// })
+router.get('/api/user', access, async (ctx) => {
+    try {
+        const service = new UserService();
+        const users = await service.getAll(Number(ctx.query.page) || 1, Number(ctx.query.quantity) || 10);
+
+        console.log(users);
+
+        if (!users || !users.length) {
+            console.log('No user found');
+            ctx.status = 200;
+            ctx.body = {
+                message: `No user found`,
+            };
+            return;
+        }
+
+        ctx.status = 200;
+        ctx.body = users;
+    } catch (err) {
+        console.log('Get all users failed', err);
+        ctx.status = err.statusCode || err.status || 400;
+        ctx.body = {
+            message: 'Get all users failed',
+            err: err,
+        };
+    }
+});
 
 export = router;
