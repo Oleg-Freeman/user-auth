@@ -1,5 +1,5 @@
 import Sequelize from 'sequelize';
-import { sequelize } from '../../db';
+import { sequelize } from '../../config/db';
 import { UserInterface } from '../../types';
 
 export const Users = sequelize.define<UserInterface>('Users', {

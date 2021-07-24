@@ -3,7 +3,7 @@ import json from 'koa-json';
 import bodyParser from 'koa-bodyparser';
 import cors from '@koa/cors';
 import {config} from './config';
-import { sequelize } from './db';
+import { sequelize } from './config/db';
 import userRouter from './modules/user/user.controller';
 
 const app = new Koa();
