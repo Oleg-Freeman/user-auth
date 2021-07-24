@@ -5,7 +5,7 @@
 import Router from 'koa-router';
 import { UserService } from './user.service';
 import { RegisterRequest } from '../../types/userInterface';
-import { registerValidation, loginValidation } from '../../utils/validation/userValidation';
+import { registerValidation } from '../../utils/validation/userValidation';
 
 const router = new Router();
 
