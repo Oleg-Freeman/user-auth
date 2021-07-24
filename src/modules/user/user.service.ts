@@ -1,12 +1,9 @@
-// business logic
-// calculations
-// transform to meet db requirements
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import { v4 as uuid } from 'uuid';
 import { config } from '../../config';
 import { UserModel } from './user.model';
-import { UserInterface } from '../../types';
+import { UpdateUser, UserInterface } from '../../types';
 
 export class UserService {
     private model: UserModel;
@@ -15,8 +12,7 @@ export class UserService {
     }
     async registerUser(login: string, password: string, firstName: string, lastName: string) {
         const id = uuid();
-        const salt = await bcrypt.genSalt(+config.bcryptSalt);
-        const hashPassword = await bcrypt.hash(password, salt);
+        const hashPassword = await this.encrypt(password);
 
         await this.model.insertUser({
             id,
@@ -55,5 +51,22 @@ export class UserService {
 
     async getAll(page: number, quantity: number) {
         return await this.model.getAll(page, quantity);
+    }
+
+    async findAndUpdate(id: string, properties: UpdateUser) {
+        const newProps = properties;
+        if (newProps.password) {
+            newProps.password = await this.encrypt(newProps.password);
+        }
+        const updateProps = [];
+        for (const [key, value] of Object.entries(newProps)) {
+            updateProps.push(`${key} = "${value}"`);
+        }
+        return await this.model.findAndUpdate(id, updateProps);
+    }
+
+    async encrypt(src: string) {
+        const salt = await bcrypt.genSalt(+config.bcryptSalt);
+        return await bcrypt.hash(src, salt);
     }
 }

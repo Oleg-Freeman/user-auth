@@ -1,19 +1,16 @@
-// handle HTTP request
-// input data validation
-// response
-// error
 import Router from 'koa-router';
 import { UserService } from './user.service';
 import { RegisterRequest, LoginRequest } from '../../types';
-import { registerValidation, loginValidation } from '../../utils/validation/body.validator';
-import { access } from '../../utils/validation/access.validator';
+import { validate } from '../../utils/validation/body.validator';
+import { hasAccess } from '../../utils/validation/access.validator';
+import { isOwner } from '../../utils/validation/owner.validation';
 
 const router = new Router();
 
 // register new user
 router.post('/api/user/register', async (ctx) => {
     try {
-        const validationErrors = registerValidation(ctx.request.body);
+        const validationErrors = validate(ctx.request.body, 'register');
         if (validationErrors) {
             console.log(`Register request validation error:`, validationErrors.details);
             ctx.status = 400;
@@ -57,7 +54,7 @@ router.post('/api/user/register', async (ctx) => {
 // login
 router.post('/api/user/login', async (ctx) => {
     try {
-        const validationErrors = loginValidation(ctx.request.body);
+        const validationErrors = validate(ctx.request.body, 'login');
         if (validationErrors) {
             console.log(`Login request validation error:`, validationErrors.details);
             ctx.status = 400;
@@ -127,12 +124,66 @@ router.get('/api/user/:id', async (ctx) => {
 });
 
 // update user profile
-// router.patch('/api/user/:id', async (ctx) => {
-//
-// })
+router.patch('/api/user/:id', hasAccess, isOwner, async (ctx) => {
+    try {
+        const validationErrors = validate(ctx.request.body, 'update');
+        if (validationErrors) {
+            console.log(`Register request validation error:`, validationErrors.details);
+            ctx.status = 400;
+            ctx.body = {
+                message: `Register request validation error: ${validationErrors.details[0].message}`,
+            };
+            return;
+        }
+
+        const service = new UserService();
+        const { firstName, lastName, login, password } = <RegisterRequest>(<unknown>ctx.request.body);
+        const userId = ctx.params.id;
+
+        const userExist = await service.ifUserExist(login);
+
+        if (userExist && userExist.length) {
+            console.log(`Login already taken`);
+            ctx.status = 400;
+            ctx.body = {
+                message: `Login already taken`,
+            };
+            return;
+        }
+
+        const newProps = {
+            ...(login ? { login } : {}),
+            ...(password ? { password } : {}),
+            ...(firstName ? { firstName } : {}),
+            ...(lastName ? { lastName } : {}),
+        };
+
+        if (!Object.keys(newProps).length) {
+            console.log(`Nothing to update`);
+            ctx.status = 200;
+            ctx.body = {
+                message: `Nothing to update`,
+            };
+            return;
+        }
+
+        await service.findAndUpdate(userId, newProps);
+        ctx.status = 200;
+        ctx.body = {
+            message: 'Updated',
+        };
+    } catch (err) {
+        console.log('Update user failed', err);
+        ctx.status = err.statusCode || err.status || 400;
+        ctx.body = {
+            message: 'Update user failed',
+            err: err,
+        };
+    }
+});
 
 // get all users
-router.get('/api/user', access, async (ctx) => {
+router.get('/api/user', hasAccess, async (ctx) => {
     try {
         const service = new UserService();
         const users = await service.getAll(Number(ctx.query.page) || 1, Number(ctx.query.quantity) || 10);
