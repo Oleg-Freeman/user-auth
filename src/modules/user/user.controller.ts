@@ -108,9 +108,22 @@ router.post('/api/user/login', async (ctx) => {
 });
 
 // get user by ID
-// router.get('/api/user/:id', async (ctx) => {
-//
-// })
+router.get('/api/user/:id', async (ctx) => {
+    try {
+        const userId = ctx.params.id;
+        const service = new UserService();
+        const user = await service.getById(userId);
+        ctx.status = 200;
+        ctx.body = user;
+    } catch (err) {
+        console.log('Get user failed', err);
+        ctx.status = err.statusCode || err.status || 400;
+        ctx.body = {
+            message: 'Get user failed',
+            err: err,
+        };
+    }
+});
 
 // update user profile
 // router.patch('/api/user/:id', async (ctx) => {

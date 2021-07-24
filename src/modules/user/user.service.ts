@@ -48,4 +48,8 @@ export class UserService {
     async ifUserExist(login: string): Promise<UserInterface[] | undefined> {
         return await this.model.queryUserLogin(login);
     }
+
+    async getById(id: string) {
+        return await this.model.queryByID(id);
+    }
 }

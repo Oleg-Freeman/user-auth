@@ -24,4 +24,8 @@ export class UserModel {
             type: QueryTypes.SELECT,
         });
     }
+
+    async queryByID(id: string) {
+        return await this.entity.findByPk(id);
+    }
 }
