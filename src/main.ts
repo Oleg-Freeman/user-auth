@@ -4,12 +4,17 @@ import bodyParser from 'koa-bodyparser';
 import cors from '@koa/cors';
 import { config } from './config';
 import { sequelize } from './db';
+import userRouter from './modules/user/user.controller';
 
 const app = new Koa();
 
+// Middlewares
 app.use(cors());
 app.use(bodyParser());
 app.use(json());
+
+// Routes
+app.use(userRouter.routes());
 
 // Error handler
 app.use(async (ctx, next) => {

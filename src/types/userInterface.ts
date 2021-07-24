@@ -1,11 +1,17 @@
-import {Optional, Model} from 'sequelize'
+import { Optional, Model } from 'sequelize';
 
-interface UserAttributes {
-    id: string;
+export interface LoginRequest {
     login: string;
     password: string;
+}
+
+export interface RegisterRequest extends LoginRequest {
     firstName: string;
     lastName: string;
+}
+
+export interface UserAttributes extends RegisterRequest {
+    id: string;
 }
 
 type UserCreationAttributes = Optional<UserAttributes, 'id'>;
