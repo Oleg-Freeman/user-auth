@@ -35,7 +35,7 @@ export class UserService {
         const passwordMatch = bcrypt.compareSync(password, savedPassword);
 
         if (passwordMatch) {
-            return jwt.sign({ id }, config.jwtSecret, {
+            return 'Bearer ' + jwt.sign({ id }, config.jwtSecret, {
                 expiresIn: config.jwtExpiration,
             });
         }

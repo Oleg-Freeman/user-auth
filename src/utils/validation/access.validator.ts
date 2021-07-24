@@ -5,9 +5,9 @@ import { Decoded } from '../../types';
 
 export const hasAccess = async (ctx: Context, next: Next) => {
     try {
-        const token = <string>ctx.header.token;
+        const auth = <string>ctx.header.token;
 
-        if (!token) {
+        if (!auth) {
             console.log('Unauthorized');
             ctx.status = 401;
             ctx.body = {
@@ -16,7 +16,8 @@ export const hasAccess = async (ctx: Context, next: Next) => {
             return;
         }
 
-        const decoded = await (<Decoded>jwt.verify(token, config.jwtSecret));
+        const token = auth.split(' ');
+        const decoded = await (<Decoded>jwt.verify(token[1], config.jwtSecret));
         ctx.state.id = decoded.id;
         return next();
     } catch (err) {
