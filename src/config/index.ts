@@ -2,15 +2,9 @@ import * as dotenv from 'dotenv';
 
 dotenv.config();
 
-export const server = {
+export const config = {
     port: process.env.PORT || '5000',
-};
-
-export const token = {
-    jwtSecret: process.env.JWT_SECRET,
+    jwtSecret: process.env.JWT_SECRET || 'secret',
     jwtExpiration: process.env.JWT_EXPIRATION,
-};
-
-export const encription = {
     bcryptSalt: process.env.BCRYPT_SALT || 10,
 };

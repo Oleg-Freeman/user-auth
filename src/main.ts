@@ -2,7 +2,7 @@ import Koa from 'koa';
 import json from 'koa-json';
 import bodyParser from 'koa-bodyparser';
 import cors from '@koa/cors';
-import {server} from './config';
+import {config} from './config';
 import { sequelize } from './db';
 import userRouter from './modules/user/user.controller';
 
@@ -30,8 +30,8 @@ app.use(async (ctx, next) => {
 sequelize
     .sync()
     .then(() =>
-        app.listen(server.port, () => {
-            console.log(`Server is running on port ${server.port}`);
+        app.listen(config.port, () => {
+            console.log(`Server is running on port ${config.port}`);
         })
     )
     .catch((err) => console.log(err));
