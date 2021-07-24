@@ -2,9 +2,9 @@
 // calculations
 // transform to meet db requirements
 import bcrypt from 'bcrypt';
-import { v4 as uuid } from 'uuid';
-import { encription } from '../../config';
-import { UserModel } from './user.model';
+import {v4 as uuid} from 'uuid';
+import {encription} from '../../config';
+import {UserModel} from './user.model';
 
 export class UserService {
     private model: UserModel;
@@ -31,5 +31,9 @@ export class UserService {
             firstName,
             lastName,
         };
+    }
+
+    async ifRegistered(login: string) {
+        return await this.model.queryUserLogin(login);
     }
 }

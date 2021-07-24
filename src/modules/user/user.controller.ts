@@ -21,9 +21,21 @@ router.post('/api/user/register', async (ctx) => {
             };
             return;
         }
+
         const { firstName, lastName, login, password } = <RegisterRequest>(<unknown>ctx.request.body);
 
         const userService = new UserService();
+        const userExist = await userService.ifRegistered(login);
+
+        if (userExist && userExist.length) {
+            console.log(`User already registered`);
+            ctx.status = 400;
+            ctx.body = {
+                message: `User already registered`,
+            };
+            return;
+        }
+
         const user = await userService.registerUser(login, password, firstName, lastName);
 
         ctx.status = 201;
