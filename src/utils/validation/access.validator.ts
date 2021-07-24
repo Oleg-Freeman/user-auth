@@ -3,7 +3,7 @@ import jwt from 'jsonwebtoken';
 import { config } from '../../config';
 import { Decoded } from '../../types';
 
-export const access = async (ctx: Context, next: Next) => {
+export const hasAccess = async (ctx: Context, next: Next) => {
     try {
         const token = <string>ctx.header.token;
 
@@ -17,11 +17,11 @@ export const access = async (ctx: Context, next: Next) => {
         }
 
         const decoded = await (<Decoded>jwt.verify(token, config.jwtSecret));
-        ctx.state = decoded.id;
+        ctx.state.id = decoded.id;
         return next();
     } catch (err) {
         console.log('Token validation failed', err);
-        ctx.status = err.statusCode || err.status || 400;
+        ctx.status = err.statusCode || err.status || 401;
         ctx.body = {
             message: 'Token validation failed',
             err: err,

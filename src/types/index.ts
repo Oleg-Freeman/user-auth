@@ -1,5 +1,5 @@
 import { Optional, Model } from 'sequelize';
-import {JwtPayload} from 'jsonwebtoken'
+import { JwtPayload } from 'jsonwebtoken';
 
 export interface LoginRequest {
     login: string;
@@ -20,5 +20,7 @@ type UserCreationAttributes = Optional<UserAttributes, 'id'>;
 export interface UserInterface extends Model<UserAttributes, UserCreationAttributes>, UserAttributes {}
 
 export interface Decoded extends JwtPayload {
-    id: string
+    id: string;
 }
+
+export interface UpdateUser extends Partial<RegisterRequest> {}
