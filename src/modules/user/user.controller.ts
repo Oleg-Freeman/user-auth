@@ -3,6 +3,7 @@
 // response
 // error
 import Router from 'koa-router';
+import { UserService } from './user.service';
 import { RegisterRequest } from '../../types/userInterface';
 import { registerValidation, loginValidation } from '../../utils/validation/userValidation';
 
@@ -22,9 +23,13 @@ router.post('/api/user/register', async (ctx) => {
         }
         const { firstName, lastName, login, password } = <RegisterRequest>(<unknown>ctx.request.body);
 
+        const userService = new UserService();
+        const user = await userService.registerUser(login, password, firstName, lastName);
+
         ctx.status = 201;
         ctx.body = {
             message: 'Registered successfully',
+            user,
         };
     } catch (err) {
         console.log('Registration failed ', err);
